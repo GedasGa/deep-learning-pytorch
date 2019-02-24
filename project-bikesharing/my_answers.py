@@ -7,25 +7,18 @@ class NeuralNetwork(object):
         self.input_nodes = input_nodes
         self.hidden_nodes = hidden_nodes
         self.output_nodes = output_nodes
+        # Set learning rate
+        self.lr = learning_rate
 
         # Initialize weights
         self.weights_input_to_hidden = np.random.normal(0.0, self.input_nodes**-0.5, 
-                                       (self.input_nodes, self.hidden_nodes))
+                                                       (self.input_nodes, self.hidden_nodes))
 
         self.weights_hidden_to_output = np.random.normal(0.0, self.hidden_nodes**-0.5, 
-                                       (self.hidden_nodes, self.output_nodes))
-        self.lr = learning_rate
-        
+                                                        (self.hidden_nodes, self.output_nodes))
+
         # Set self.activation_function to your implemented sigmoid function
         self.activation_function = lambda x : 1 / (1 + np.exp(-x))
-        
-        ### If the lambda code above is not something you're familiar with,
-        # You can uncomment out the following three lines and put your 
-        # implementation there instead.
-        #
-        #def sigmoid(x):
-        #    return 0  # Replace 0 with your sigmoid calculation here
-        #self.activation_function = sigmoid
                     
 
     def train(self, features, targets):
@@ -33,7 +26,6 @@ class NeuralNetwork(object):
         
             Arguments
             ---------
-            
             features: 2D array, each row is one data record, each column is a feature
             targets: 1D array of target values
         
@@ -41,13 +33,14 @@ class NeuralNetwork(object):
         n_records = features.shape[0]
         delta_weights_i_h = np.zeros(self.weights_input_to_hidden.shape)
         delta_weights_h_o = np.zeros(self.weights_hidden_to_output.shape)
-        for X, y in zip(features, targets):
-            
+        
+        for X, y in zip(features, targets):   
             # Implement the forward pass function
             final_outputs, hidden_outputs = self.forward_pass_train(X)  
             # Implement the backproagation function
             delta_weights_i_h, delta_weights_h_o = self.backpropagation(final_outputs, hidden_outputs, X, y, 
                                                                         delta_weights_i_h, delta_weights_h_o)
+            
         self.update_weights(delta_weights_i_h, delta_weights_h_o, n_records)
 
 
@@ -60,7 +53,6 @@ class NeuralNetwork(object):
 
         '''
         #### Implement the forward pass ####
-        ### Forward pass ###
         
         # Hidden layer
         hidden_inputs = np.dot(X, self.weights_input_to_hidden) # signals into hidden layer
@@ -84,8 +76,7 @@ class NeuralNetwork(object):
 
         '''
         #### Implement the backward pass ####
-        ### Backward pass ###
-
+        
         # Output error 
         error = y - final_outputs # Output layer error is the difference between desired target and actual output.
         
@@ -93,14 +84,13 @@ class NeuralNetwork(object):
         hidden_error = np.dot(self.weights_hidden_to_output, error)
         
         # Backpropagated error terms
-        output_error_term = error
-        
         hidden_error_term = hidden_error * hidden_outputs * (1 - hidden_outputs)
         
         # Weight step (input to hidden)
         delta_weights_i_h += hidden_error_term * X[:, None]
         # Weight step (hidden to output)
-        delta_weights_h_o += output_error_term * hidden_outputs[:, None]
+        delta_weights_h_o += error * hidden_outputs[:, None]
+        
         return delta_weights_i_h, delta_weights_h_o
 
     def update_weights(self, delta_weights_i_h, delta_weights_h_o, n_records):
@@ -124,8 +114,7 @@ class NeuralNetwork(object):
             Arguments
             ---------
             features: 1D array of feature values
-        '''
-        
+        ''' 
         #### Implement the forward pass ####
 
         # Hidden layer
@@ -142,7 +131,7 @@ class NeuralNetwork(object):
 #########################################################
 # Hyperparameters
 ##########################################################
-iterations = 100
-learning_rate = 0.1
-hidden_nodes = 2
+iterations = 1000
+learning_rate = 0.01
+hidden_nodes = 10
 output_nodes = 1
