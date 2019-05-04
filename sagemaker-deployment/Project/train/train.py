@@ -77,11 +77,16 @@ def train(model, train_loader, epochs, optimizer, loss_fn, device):
             batch_X = batch_X.to(device)
             batch_y = batch_y.to(device)
             
-            # Complete this train method to train the model provided.
+            # apply zero gradients
             model.zero_grad()
+            # get the output from our model
             output = model(batch_X)
-            loss = loss_fn(output, batch_y)
+            # perform backpropagation
+            loss = loss_fn(output.squeeze(), batch_y)
             loss.backward()
+            # prevent the exploding gradient problem
+            nn.utils.clip_grad_norm_(rnn.parameters(), 5) # using clipping size 5
+            # perform optimization
             optimizer.step()
             
             total_loss += loss.data.item()
