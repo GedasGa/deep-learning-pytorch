@@ -85,7 +85,7 @@ def train(model, train_loader, epochs, optimizer, loss_fn, device):
             loss = loss_fn(output.squeeze(), batch_y)
             loss.backward()
             # prevent the exploding gradient problem
-            nn.utils.clip_grad_norm_(rnn.parameters(), 5) # using clipping size 5
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 5) # using clipping size 5
             # perform optimization
             optimizer.step()
             
